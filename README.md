@@ -48,17 +48,19 @@ Before running the installer, ensure you have:
 
 ## Quick Start
 
-### 1. Clone or Download the Script
+### Option 1: Install via AUR (Arch User Repository)
+
+```bash
+yay -S osu-stable-arch-git
+osu-install
+```
+
+### Option 2: Clone or Download the Script
 
 ```bash
 git clone https://github.com/mizukika/osu-stable-arch-linux.git
 cd osu-stable-arch-linux
 chmod +x osu-install.sh
-```
-
-### 2. Run the Installer
-
-```bash
 ./osu-install.sh
 ```
 

@@ -48,17 +48,19 @@
 
 ## Быстрый старт
 
-### 1. Клонируйте или скачайте скрипт
+### Вариант 1: Установка через AUR (Рекомендуется)
+
+```bash
+yay -S osu-stable-arch-git
+osu-install
+```
+
+### Вариант 2: Клонировать или скачать скрипт
 
 ```bash
 git clone https://github.com/mizukika/osu-stable-arch-linux.git
 cd osu-stable-arch-linux
 chmod +x osu-install.sh
-```
-
-### 2. Запустите инсталлятор
-
-```bash
 ./osu-install.sh
 ```
 
