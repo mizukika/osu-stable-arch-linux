@@ -1083,7 +1083,7 @@ install_dependencies() {
         gtk3
         lib32-gtk3
         gst-plugins-base-libs
-        lib32-gst-plugins-base-libs
+        lib32-gst-plugins-base
         vulkan-icd-loader
         lib32-vulkan-icd-loader
         wine
