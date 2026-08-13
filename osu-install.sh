@@ -1087,6 +1087,7 @@ install_dependencies() {
         lib32-vulkan-icd-loader
         wine
         winetricks
+        cabextract
         wget
         curl
         unzip
@@ -1229,6 +1230,7 @@ setup_prefix() {
 
     "$WINE" wineboot -u >/dev/null 2>&1 || true
 
+    WINE="$WINE" \
     WINEPREFIX="$PREFIX" \
     WINEARCH=win32 \
     winetricks -q dotnet45 cjkfonts gdiplus
