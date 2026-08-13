@@ -992,7 +992,7 @@ install_missing_system_packages() {
     success "$(msg preflight_done)"
 }
 
-preflight_and_fix() {
+preflight_and_offer() {
     preflight_scan
     local scan_rc=0
     preflight_report || scan_rc=$?
