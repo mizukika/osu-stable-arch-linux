@@ -58,8 +58,8 @@ osu-install
 ### Вариант 2: Клонировать или скачать скрипт
 
 ```bash
-git clone https://github.com/mizukika/osu-stable-arch-linux.git
-cd osu-stable-arch-linux
+git clone https://github.com/mizukika/osu-stable-arch.git
+cd osu-stable-arch
 chmod +x osu-install.sh
 ./osu-install.sh
 ```
