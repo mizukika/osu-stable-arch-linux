@@ -984,6 +984,7 @@ install_missing_system_packages() {
 
     if ! sudo pacman -S --needed --noconfirm "${PF_MISSING_PKGS[@]}"; then
         error "$(msg preflight_fail)"
+        pause
         return 1
     fi
 
@@ -1111,6 +1112,7 @@ install_dependencies() {
 
     if ! sudo pacman -S --needed --noconfirm "${pkgs[@]}"; then
         error "$(msg preflight_fail)"
+        pause
         return 1
     fi
 
