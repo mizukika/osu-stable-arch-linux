@@ -1,16 +1,8 @@
 #!/usr/bin/env bash
 
-# ============================================================
-#  osu! Stable — Arch Linux  |  Wine installation manager
-# ============================================================
-
 set -uo pipefail
 
 VERSION="1.1.0"
-
-# -----------------------------
-# Colors (MSR-like)
-# -----------------------------
 
 RESET='\033[0m'
 BOLD='\033[1m'
@@ -24,10 +16,6 @@ MAGENTA='\033[1;35m'
 CYAN='\033[1;36m'
 WHITE='\033[1;37m'
 DARK='\033[90m'
-
-# -----------------------------
-# Paths
-# -----------------------------
 
 WINE_DIR="$HOME/wine-osu"
 WINE="$WINE_DIR/bin/wine"
@@ -64,10 +52,6 @@ WINE_ARCHIVE="$HOME/Downloads/wine-osu-7.15.2-x86_64.tar.xz"
 
 UI_LANG=""
 BOX_W=58
-
-# -----------------------------
-# i18n
-# -----------------------------
 
 declare -A MSG=()
 
@@ -447,13 +431,8 @@ msg() {
 msgf() {
     local key="$1"
     shift
-    # shellcheck disable=SC2059
     printf "${MSG[$key]:-$key}" "$@"
 }
-
-# -----------------------------
-# UI (MSR-inspired)
-# -----------------------------
 
 clear_screen() {
     printf '\033[H\033[2J'
@@ -517,7 +496,6 @@ box_bot() {
 }
 
 box_line() {
-    # Centered box row. box_line "text" [color] [width]
     local text="$1"
     local color="${2:-$WHITE}"
     local w="${3:-$BOX_W}"
@@ -605,7 +583,6 @@ pause() {
 }
 
 ask() {
-    # ask "prompt" -> sets REPLY via read -rp style into global ASK_REPLY
     local prompt="$1"
     printf '  %b[%b?%b]%b %s' "$BLUE" "$RESET" "$BLUE" "$RESET" "$prompt"
     read -r ASK_REPLY
@@ -620,7 +597,6 @@ prompt_choice() {
 draw_menu_box() {
     local title_text="$1"
     shift
-    # remaining: "num|label" pairs
     box_top
     box_line "$title_text" "$GREEN$BOLD"
     box_line "$(msg menu_hint)" "$DARK"
@@ -725,11 +701,6 @@ run_user_cmd() {
     fi
 }
 
-
-# -----------------------------
-# GPU detection
-# -----------------------------
-
 detect_gpu() {
     if command_exists nvidia-smi && nvidia-smi >/dev/null 2>&1; then
         GPU="nvidia"
@@ -746,17 +717,11 @@ detect_gpu() {
     fi
 }
 
-# -----------------------------
-# Preflight (PipeWire / multilib / tutorial deps)
-# Modern stack: WirePlumber — NOT obsolete pipewire-media-session from the guide.
-# -----------------------------
-
 pkg_installed() {
     pacman -Q "$1" >/dev/null 2>&1
 }
 
 multilib_enabled() {
-    # Active (non-commented) [multilib] section
     awk '
         /^\[multilib\]/ { print; exit 0 }
         /^[[:space:]]*#[[:space:]]*\[multilib\]/ { next }
@@ -816,7 +781,6 @@ enable_multilib() {
         return 1
     fi
 
-    # Uncomment [multilib] block Include line (Arch default pacman.conf layout)
     if ! sudo sed -i '/^#\[multilib\]/,/^$/{s/^#//}' /etc/pacman.conf; then
         error "$(msg pf_multilib_fail)"
         return 1
@@ -865,7 +829,6 @@ enable_pipewire_user_services() {
     success "$(msg pf_pw_started)"
 }
 
-# Fills global arrays PF_MISSING_PKGS and sets PF_NEED_*
 preflight_scan() {
     PF_MISSING_PKGS=()
     PF_OK_SUDO=0
@@ -882,7 +845,7 @@ preflight_scan() {
     PF_OK_PATH=0
     PF_OK_DISPLAY=0
     PF_OK_PW_RUN=0
-    PF_OK_NVIDIA32=1  # ok unless nvidia without lib
+    PF_OK_NVIDIA32=1
 
     command_exists sudo && PF_OK_SUDO=1
     network_ok && PF_OK_NET=1
@@ -908,7 +871,6 @@ preflight_scan() {
     [[ "$PF_OK_WT" -eq 0 ]] && PF_MISSING_PKGS+=(winetricks)
     [[ "$PF_OK_GIT" -eq 0 ]] && PF_MISSING_PKGS+=(git)
 
-    # lib32-pipewire helps Wine/pulse clients
     if ! pkg_installed lib32-pipewire; then
         PF_MISSING_PKGS+=(lib32-pipewire)
     fi
@@ -921,7 +883,6 @@ preflight_scan() {
         fi
     fi
 
-    # Unique
     if ((${#PF_MISSING_PKGS[@]})); then
         mapfile -t PF_MISSING_PKGS < <(printf '%s\n' "${PF_MISSING_PKGS[@]}" | awk 'NF && !seen[$0]++')
     fi
@@ -948,8 +909,6 @@ preflight_report() {
     if [[ "${GPU:-}" == "nvidia" ]]; then
         pf_status_line "$PF_OK_NVIDIA32" "lib32-nvidia-utils"
     fi
-
-
 
     if ((${#PF_MISSING_PKGS[@]})); then
         printf "\n"
@@ -1002,7 +961,6 @@ preflight_and_offer() {
     [[ "$PF_OK_PATH" -eq 0 ]] && need_action=1
     [[ "$PF_OK_PW_RUN" -eq 0 && "$PF_OK_PW" -eq 1 ]] && need_action=1
 
-    # If packages missing after report returned issues
     if [[ "$need_action" -eq 1 ]] || [[ "$scan_rc" -ne 0 ]]; then
         printf "\n"
         if ((${#PF_MISSING_PKGS[@]})) || [[ "$PF_OK_MULTILIB" -eq 0 ]]; then
@@ -1011,7 +969,6 @@ preflight_and_offer() {
                 warn "$(msg preflight_skip)"
             else
                 install_missing_system_packages || return 1
-                # refresh scan after install
                 preflight_scan
             fi
         fi
@@ -1021,7 +978,6 @@ preflight_and_offer() {
             path_has_local_bin && PF_OK_PATH=1
         fi
 
-        # After packages present, offer to start PW
         if pkg_installed pipewire && pkg_installed wireplumber; then
             if ! pipewire_services_active; then
                 enable_pipewire_user_services
@@ -1031,10 +987,6 @@ preflight_and_offer() {
 
     return 0
 }
-
-# -----------------------------
-# Dependencies
-# -----------------------------
 
 install_dependencies() {
     step "$(msg dep_step)"
@@ -1095,7 +1047,6 @@ install_dependencies() {
         xdg-utils
         desktop-file-utils
         git
-        # Audio stack expected by the Arch+osu guide (modern session manager)
         pipewire
         pipewire-audio
         pipewire-pulse
@@ -1118,10 +1069,6 @@ install_dependencies() {
 
     success "$(msg dep_ok)"
 }
-
-# -----------------------------
-# Custom Wine
-# -----------------------------
 
 install_custom_wine() {
     step "$(msg wine_check)"
@@ -1160,7 +1107,6 @@ install_custom_wine() {
         return 1
     fi
 
-    # Архив обычно содержит wine-osu/
     if [[ -d "$HOME/wine-osu" ]]; then
         success "$(msg wine_installed)"
     else
@@ -1178,10 +1124,6 @@ install_custom_wine() {
         return 1
     fi
 }
-
-# -----------------------------
-# osu! download
-# -----------------------------
 
 download_osu() {
     step "$(msg osu_step)"
@@ -1208,10 +1150,6 @@ download_osu() {
     success "$(msg osu_ok)"
 }
 
-# -----------------------------
-# Wine prefix
-# -----------------------------
-
 setup_prefix() {
     step "$(msg prefix_step)"
 
@@ -1237,11 +1175,6 @@ setup_prefix() {
 
     success "$(msg prefix_ok)"
 }
-
-# -----------------------------
-# Low-latency audio (modern PipeWire)
-# Safe drop-ins only — no PulseAudio daemon.conf, no full config overwrite.
-# -----------------------------
 
 current_audio_preset() {
     if [[ -f "$AUDIO_STATE" ]]; then
@@ -1270,7 +1203,6 @@ EOF
 
 ensure_default_audio_env() {
     if [[ ! -f "$AUDIO_ENV" ]]; then
-        # Stock Wine-osu values from the original tutorial
         write_audio_env 13333 13333 default
     fi
 }
@@ -1289,7 +1221,6 @@ backup_audio_configs() {
     [[ -f "$AUDIO_ENV" ]] && cp -a "$AUDIO_ENV" "$bak/"
     [[ -f "$AUDIO_STATE" ]] && cp -a "$AUDIO_STATE" "$bak/"
 
-    # Keep a "latest" pointer for one-shot restore
     rm -rf "$AUDIO_BACKUP_DIR/latest"
     cp -a "$bak" "$AUDIO_BACKUP_DIR/latest"
 
@@ -1328,8 +1259,6 @@ install_realtime_privileges() {
         fi
     fi
 
-    # Do NOT write nice -20 into limits.conf — realtime-privileges already
-    # ships a safe drop-in (@realtime rtprio 98, nice -11, memlock unlimited).
 }
 
 write_pipewire_dropins() {
@@ -1392,22 +1321,18 @@ apply_audio_preset() {
 
     case "$preset" in
         safe)
-            # ~5.3 ms quantum — стабильно почти везде
             quantum=256; min_q=64; max_q=1024; pulse_min=256
             period=20000; duration=40000
             ;;
         balanced)
-            # ~2.7 ms — хороший дефолт под osu!
             quantum=128; min_q=32; max_q=512; pulse_min=128
             period=13333; duration=26666
             ;;
         low)
-            # ~1.3 ms — соревновательный
             quantum=64; min_q=32; max_q=512; pulse_min=64
             period=6666; duration=13333
             ;;
         ultra)
-            # ~0.67 ms — только если CPU/диск тянут без crackle
             quantum=32; min_q=16; max_q=256; pulse_min=32
             period=3333; duration=6666
             ;;
@@ -1437,7 +1362,6 @@ apply_audio_preset() {
     write_pipewire_dropins "$quantum" "$min_q" "$max_q" "$pulse_min"
     write_audio_env "$period" "$duration" "$preset"
 
-    # Keep launchers in sync if they still hardcode STAGING_*
     if [[ -x "$OSU_LAUNCHER" ]]; then
         detect_gpu
         create_launcher
@@ -1507,7 +1431,6 @@ audio_status() {
 
     if [[ -f "$AUDIO_ENV" ]]; then
         printf "  %b●%b audio.env\n" "$GREEN" "$RESET"
-        # shellcheck disable=SC1090
         source "$AUDIO_ENV"
         printf "      STAGING_AUDIO_PERIOD=%s\n" "${STAGING_AUDIO_PERIOD:-?}"
         printf "      STAGING_AUDIO_DURATION=%s\n" "${STAGING_AUDIO_DURATION:-?}"
@@ -1540,7 +1463,6 @@ audio_status() {
 
     pause
 }
-
 
 tune_staging_manual() {
     title
@@ -1583,7 +1505,6 @@ tune_staging_manual() {
     pause
 }
 
-
 audio_menu() {
     while true; do
         detect_gpu
@@ -1625,11 +1546,6 @@ audio_menu() {
         esac
     done
 }
-
-
-# -----------------------------
-# Launcher
-# -----------------------------
 
 create_launcher() {
     step "$(msg launcher_step)"
@@ -1681,10 +1597,6 @@ EOF
     success "$(msg launcher_ok)"
 }
 
-# -----------------------------
-# Killer
-# -----------------------------
-
 create_killer() {
     step "$(msg killer_step)"
 
@@ -1705,10 +1617,6 @@ EOF
 
     success "$(msg killer_ok)"
 }
-
-# -----------------------------
-# File handler
-# -----------------------------
 
 create_file_handler() {
     step "$(msg handler_step)"
@@ -1754,10 +1662,6 @@ EOF
 
     success "$(msg handler_ok)"
 }
-
-# -----------------------------
-# Desktop entries
-# -----------------------------
 
 create_desktop_entries() {
     step "$(msg desktop_step)"
@@ -1809,10 +1713,6 @@ EOF
     success "$(msg desktop_ok)"
 }
 
-# -----------------------------
-# MIME handlers
-# -----------------------------
-
 setup_handlers() {
     step "$(msg mime_step)"
 
@@ -1837,10 +1737,6 @@ setup_handlers() {
     success "$(msg mime_ok)"
     success "$(msg mime_url_ok)"
 }
-
-# -----------------------------
-# Full install
-# -----------------------------
 
 full_install() {
     title
@@ -1893,11 +1789,6 @@ full_install() {
     pause
 }
 
-
-# -----------------------------
-# Launch
-# -----------------------------
-
 launch_osu() {
     if [[ ! -x "$OSU_LAUNCHER" ]]; then
         error "$(msg not_installed)"
@@ -1907,10 +1798,6 @@ launch_osu() {
 
     "$OSU_LAUNCHER"
 }
-
-# -----------------------------
-# Kill
-# -----------------------------
 
 kill_osu() {
     if [[ -x "$OSU_KILLER" ]]; then
@@ -1923,10 +1810,6 @@ kill_osu() {
 
     pause
 }
-
-# -----------------------------
-# Repair handlers
-# -----------------------------
 
 repair_handlers() {
     title
@@ -1963,10 +1846,6 @@ repair_handlers() {
 
     pause
 }
-
-# -----------------------------
-# Status
-# -----------------------------
 
 status() {
     title
@@ -2016,11 +1895,6 @@ status() {
 
     pause
 }
-
-
-# -----------------------------
-# Uninstall
-# -----------------------------
 
 uninstall() {
     title
@@ -2079,10 +1953,6 @@ uninstall() {
     pause
 }
 
-# -----------------------------
-# Menu
-# -----------------------------
-
 menu() {
     while true; do
         detect_gpu
@@ -2125,11 +1995,6 @@ menu() {
         esac
     done
 }
-
-
-# -----------------------------
-# Main
-# -----------------------------
 
 ensure_lang() {
     if [[ -n "${UI_LANG:-}" ]]; then
@@ -2195,7 +2060,6 @@ fi
 select_language
 detect_gpu
 
-# Before menu: check PipeWire / multilib / deps and offer to install if missing
 preflight_scan
 if ((${#PF_MISSING_PKGS[@]})) || [[ "$PF_OK_MULTILIB" -eq 0 ]] || [[ "$PF_OK_PW" -eq 0 ]] || [[ "$PF_OK_WP" -eq 0 ]]; then
     preflight_and_offer
