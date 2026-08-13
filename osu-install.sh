@@ -949,9 +949,7 @@ preflight_report() {
         pf_status_line "$PF_OK_NVIDIA32" "lib32-nvidia-utils"
     fi
 
-    printf "\n"
-    info "$(msg pf_note_wp)"
-    info "$(msg pf_note_gpu)"
+
 
     if ((${#PF_MISSING_PKGS[@]})); then
         printf "\n"
