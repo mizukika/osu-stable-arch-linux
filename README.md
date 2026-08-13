@@ -9,6 +9,21 @@
 
 An automated, feature-rich Wine installation manager and performance optimizer for **osu! Stable** on **Arch Linux**.
 
+**English** | [Русский](README.ru.md)
+
+<details>
+<summary><b>Читать на русском / Read in Russian</b></summary>
+
+Полная документация на русском языке доступна в файле [README.ru.md](README.ru.md).
+
+</details>
+
+---
+
+## Why This Exists
+
+I couldn't find a hassle-free, convenient osu! installer for Arch Linux that just works out of the box and automatically resolves all the dependency, audio, and Wine issues that usually pop up along the way — so I decided to build my own.
+
 ---
 
 ## Features
@@ -132,6 +147,13 @@ To cleanly remove osu!, its Wine prefix, custom scripts, and desktop entries:
 1. Run `./osu-install.sh`.
 2. Select **`06. Uninstall osu!`**.
 3. Type `DELETE` when prompted.
+
+---
+
+## Credits & Author
+
+- **Maintainer:** [exteraDere](https://osu.ppy.sh/users/39692242) *(noob who plays terribly)*
+- **Original Guide:** Based on the [osu-on-linux](https://github.com/Vudek/osu-on-linux/blob/main/README.md) guide created by [Vudek](https://osu.ppy.sh/users/8816345/osu).
 
 ---
 
